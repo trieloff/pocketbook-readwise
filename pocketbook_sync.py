@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import os
 import json
 import hashlib
@@ -17,6 +18,7 @@ class PocketBookReadwiseSync:
         self.cache = self._load_cache()
         self.pocketbook_path = Path("/Volumes/PB700K3/Notes")
         self.readwise_url = "https://readwise.io/api/v2/highlights/"
+        self.processed_files = []  # Track files processed during sync
         
     def _load_cache(self) -> Dict:
         if os.path.exists(self.cache_file):
@@ -268,6 +270,9 @@ class PocketBookReadwiseSync:
                 
                 self.cache["file_hashes"][str(latest_file)] = file_hash
                 self._save_cache()
+                
+                # Track the file as processed for potential cleanup
+                self.processed_files.append(latest_file)
             
             print(f"\nSync complete! Uploaded {total_new_highlights} new highlights.")
             
@@ -276,10 +281,76 @@ class PocketBookReadwiseSync:
             print("Please ensure your PocketBook is connected and mounted at /Volumes/PB700K3/")
         except Exception as e:
             print(f"Unexpected error: {e}")
+    
+    def cleanup(self):
+        """Delete all HTML highlight files from the PocketBook device."""
+        try:
+            if not self.pocketbook_path.exists():
+                print(f"Error: PocketBook not mounted at {self.pocketbook_path}")
+                print("Please ensure your PocketBook is connected and mounted.")
+                return False
+            
+            html_files = list(self.pocketbook_path.glob("*.html"))
+            # Filter out macOS metadata files
+            html_files = [f for f in html_files if not f.name.startswith('._')]
+            
+            if not html_files:
+                print("No highlight files found to clean up.")
+                return True
+            
+            print(f"Found {len(html_files)} highlight files to delete:")
+            for file in html_files:
+                print(f"  - {file.name}")
+            
+            # Ask for confirmation
+            response = input(f"\nAre you sure you want to delete these {len(html_files)} files? (y/N): ")
+            if response.lower() not in ['y', 'yes']:
+                print("Cleanup cancelled.")
+                return False
+            
+            deleted_count = 0
+            for file in html_files:
+                try:
+                    file.unlink()
+                    print(f"Deleted: {file.name}")
+                    deleted_count += 1
+                except Exception as e:
+                    print(f"Failed to delete {file.name}: {e}")
+            
+            print(f"\nCleanup complete! Deleted {deleted_count} of {len(html_files)} files.")
+            return deleted_count == len(html_files)
+            
+        except Exception as e:
+            print(f"Cleanup error: {e}")
+            return False
 
 
 def main():
-    # Try to get token from environment variable first
+    parser = argparse.ArgumentParser(
+        description="Sync highlights from PocketBook e-reader to Readwise",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python pocketbook_sync.py          # Sync highlights to Readwise
+  python pocketbook_sync.py --cleanup # Delete highlight files from PocketBook
+        """
+    )
+    parser.add_argument(
+        "--cleanup", 
+        action="store_true", 
+        help="Delete highlight files from PocketBook device after confirmation"
+    )
+    
+    args = parser.parse_args()
+    
+    # For cleanup mode, we don't need a Readwise token
+    if args.cleanup:
+        # Create a dummy syncer just for cleanup (no token needed)
+        syncer = PocketBookReadwiseSync("")
+        syncer.cleanup()
+        return
+    
+    # For sync mode, we need the Readwise token
     readwise_token = os.environ.get("READWISE_TOKEN")
     
     # If not in env, try to read from .credentials file

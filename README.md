@@ -30,6 +30,11 @@ Or manually:
 uv run pocketbook_sync.py
 ```
 
+To clean up (delete) highlight files from your PocketBook after syncing:
+```bash
+uv run pocketbook_sync.py --cleanup
+```
+
 The script will:
 - Find all HTML note files in `/Volumes/PB700K3/Notes/`
 - Group files by book title (handling duplicates by using the newest)
@@ -47,6 +52,7 @@ The script will:
 - **Error Handling**: Graceful handling of missing device or API errors
 - **Color Tags**: Automatically converts PocketBook highlight colors to Readwise tags (e.g., magenta → .magenta, yellow → .yellow, cian → .cian)
 - **Complete Metadata**: Preserves page numbers, highlight timestamps, and notes
+- **Cleanup Mode**: Option to delete highlight files from PocketBook after successful sync
 
 ## Cache
 
