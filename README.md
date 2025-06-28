@@ -1,5 +1,7 @@
 # PocketBook to Readwise Sync
 
+[![100% Vibe_Coded](https://img.shields.io/badge/100%25-Vibe_Coded-ff69b4?style=for-the-badge&logo=claude&logoColor=white)](https://github.com/trieloff/pocketbook-readwise)
+
 Automatically sync highlights from your PocketBook e-reader to Readwise.
 
 ## Setup
