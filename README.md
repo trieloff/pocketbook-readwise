@@ -4,11 +4,9 @@ Automatically sync highlights from your PocketBook e-reader to Readwise.
 
 ## Setup
 
-1. Install dependencies:
+1. Install dependencies using uv:
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
+   uv sync
    ```
 
 2. Get your Readwise access token from https://readwise.io/access_token
@@ -29,8 +27,7 @@ Run the sync script:
 
 Or manually:
 ```bash
-source venv/bin/activate
-python pocketbook_sync.py
+uv run pocketbook_sync.py
 ```
 
 The script will:

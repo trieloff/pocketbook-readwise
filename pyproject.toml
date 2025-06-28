@@ -1,0 +1,14 @@
+[project]
+name = "pocketbook-readwise"
+version = "1.0.0"
+description = "Sync highlights from PocketBook e-reader to Readwise with color tags and metadata"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "beautifulsoup4>=4.12.0",
+    "requests>=2.31.0",
+    "lxml>=4.9.0",
+]
+
+[project.urls]
+Repository = "https://github.com/trieloff/pocketbook-readwise"
